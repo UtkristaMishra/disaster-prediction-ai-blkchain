@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+.env*
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/
+
+# API and notebook outputs
+*.log
+
+# Optional dataset storage
+data/*.csv
+
+# Generated trained model artifacts
+backend/models/saved_models/*.pkl
+!backend/models/saved_models/.gitkeep

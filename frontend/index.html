@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DisasterShield AI</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">AI + Blockchain Disaster Intelligence</p>
+            <h1>DisasterShield AI</h1>
+        </div>
+        <div class="system-status">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="backend-status">Checking backend</span>
+        </div>
+    </header>
+
+    <main class="app-shell">
+        <section class="hero-panel">
+            <div class="hero-copy">
+                <p class="eyebrow">Real-time risk scoring</p>
+                <h2>Predict flood and wildfire risk from environmental signals.</h2>
+                <p>
+                    The demo sends sensor-style inputs to a FastAPI model service, returns a risk score,
+                    and prepares an immutable audit record for blockchain logging.
+                </p>
+            </div>
+            <div class="metric-strip">
+                <div>
+                    <span>Models</span>
+                    <strong>2</strong>
+                </div>
+                <div>
+                    <span>API</span>
+                    <strong>Live</strong>
+                </div>
+                <div>
+                    <span>Audit</span>
+                    <strong>Ready</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <form id="prediction-form" class="input-panel">
+                <div class="panel-heading">
+                    <p class="eyebrow">Input Console</p>
+                    <h2>Environmental Readings</h2>
+                </div>
+
+                <label>
+                    Disaster model
+                    <select id="model_type">
+                        <option value="wildfire">Wildfire Risk</option>
+                        <option value="flood">Flood Risk</option>
+                    </select>
+                </label>
+
+                <div class="field-grid">
+                    <label>Rainfall <span>mm</span><input type="number" step="0.1" id="rainfall" value="20" /></label>
+                    <label>Temperature <span>deg C</span><input type="number" step="0.1" id="temperature" value="28" /></label>
+                    <label>Humidity <span>%</span><input type="number" step="0.1" id="humidity" value="45" /></label>
+                    <label>Wind Speed <span>km/h</span><input type="number" step="0.1" id="wind_speed" value="8" /></label>
+                    <label>Vegetation Index <span>NDVI</span><input type="number" step="0.01" id="ndvi" value="0.35" /></label>
+                    <label>Elevation <span>m</span><input type="number" step="1" id="elevation" value="220" /></label>
+                </div>
+
+                <button type="submit" id="predict-button">Run Prediction</button>
+            </form>
+
+            <section class="result-panel">
+                <div class="panel-heading">
+                    <p class="eyebrow">Decision Output</p>
+                    <h2 id="risk_label">Waiting for prediction</h2>
+                </div>
+
+                <div class="risk-meter">
+                    <div class="meter-ring">
+                        <span id="risk_probability">--</span>
+                        <small>Risk</small>
+                    </div>
+                    <div>
+                        <p id="message">Enter values and run the model to generate a disaster risk assessment.</p>
+                        <div class="model-badge" id="selected-model">Wildfire Risk</div>
+                    </div>
+                </div>
+
+                <div class="result-grid">
+                    <div class="result-card">
+                        <span>Intensity</span>
+                        <strong id="intensity">--</strong>
+                    </div>
+                    <div class="result-card">
+                        <span>Confidence</span>
+                        <strong id="confidence">--</strong>
+                    </div>
+                    <div class="result-card">
+                        <span>Response</span>
+                        <strong id="response-state">Idle</strong>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="insight-grid">
+            <article>
+                <p class="eyebrow">AI Pipeline</p>
+                <h3>Model Service</h3>
+                <p>FastAPI receives environmental values, routes them to the selected model, and returns probability, intensity, label, and confidence.</p>
+            </article>
+            <article>
+                <p class="eyebrow">Blockchain Layer</p>
+                <h3>Audit Trail</h3>
+                <p id="audit-text">No prediction submitted yet. After each result, the dashboard creates a demo audit hash for transparent logging.</p>
+            </article>
+            <article>
+                <p class="eyebrow">IPFS Concept</p>
+                <h3>Artifact Storage</h3>
+                <p>Prediction reports and model metadata can be stored off-chain, while their hashes are recorded on-chain for verification.</p>
+            </article>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
