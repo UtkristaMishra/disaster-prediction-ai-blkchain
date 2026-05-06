@@ -15,6 +15,24 @@ const modelTypeSelect = document.getElementById("model_type");
 
 const apiBaseUrl = "http://127.0.0.1:8000";
 
+// Keep these IDs exactly aligned with backend.schemas.PredictionRequest.
+const predictionFieldIds = [
+    "rainfall",
+    "temperature",
+    "humidity",
+    "wind_speed",
+    "ndvi",
+    "elevation",
+    "latitude",
+    "longitude",
+    "pressure_mean",
+    "solar_radiation_mean",
+    "evapotranspiration_total",
+    "cloud_cover_mean",
+    "dewpoint_mean",
+    "wind_direction_mean",
+];
+
 function formatPercent(value) {
     const numericValue = Number(value);
     if (Number.isNaN(numericValue)) {
@@ -48,14 +66,10 @@ function buildAuditHash(payload, data) {
 }
 
 function collectPayload() {
-    return {
-        rainfall: parseFloat(document.getElementById("rainfall").value),
-        temperature: parseFloat(document.getElementById("temperature").value),
-        humidity: parseFloat(document.getElementById("humidity").value),
-        wind_speed: parseFloat(document.getElementById("wind_speed").value),
-        ndvi: parseFloat(document.getElementById("ndvi").value),
-        elevation: parseFloat(document.getElementById("elevation").value),
-    };
+    return predictionFieldIds.reduce((payload, fieldId) => {
+        payload[fieldId] = parseFloat(document.getElementById(fieldId).value);
+        return payload;
+    }, {});
 }
 
 async function checkBackend() {
@@ -81,6 +95,11 @@ modelTypeSelect.addEventListener("change", () => {
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
 
     const modelType = modelTypeSelect.value;
     const modelLabel = modelTypeSelect.options[modelTypeSelect.selectedIndex].text;

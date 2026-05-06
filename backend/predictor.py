@@ -14,13 +14,8 @@ class ModelRegistry:
             raise ValueError(f"Unknown model: {model_name}")
         return model
 
-    def predict(self, model_name: str, rainfall: float, temperature: float, humidity: float, wind_speed: float, ndvi: float, elevation: float):
+    def predict(self, model_name: str, **features):
         model = self.get(model_name)
-        return model.predict(
-            rainfall=rainfall,
-            temperature=temperature,
-            humidity=humidity,
-            wind_speed=wind_speed,
-            ndvi=ndvi,
-            elevation=elevation,
-        )
+        # Forward the validated request fields unchanged so each model can use
+        # the feature subset it was trained for without registry-level defaults.
+        return model.predict(**features)

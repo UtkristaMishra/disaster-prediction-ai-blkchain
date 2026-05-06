@@ -35,13 +35,14 @@ class FloodPredictor:
             print(f"Trained flood model not found at {model_path}")
             print("  Run: python backend/train_flood_model.py")
 
-    def predict(self, rainfall: float, temperature: float, humidity: float, 
-                wind_speed: float, ndvi: float, elevation: float):
+    def predict(self, rainfall: float, temperature: float, humidity: float,
+                wind_speed: float, ndvi: float, elevation: float, **_unused_features):
         """
         Predict flood risk.
         
         Args:
             rainfall, temperature, humidity, wind_speed, ndvi, elevation: environmental features
+            _unused_features: accepted for API compatibility with the richer wildfire request body
         
         Returns:
             dict with risk_probability, risk_label, confidence

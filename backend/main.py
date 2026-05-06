@@ -30,14 +30,11 @@ def health_check():
 @app.post("/predict/wildfire", response_model=PredictionResponse)
 def predict_wildfire(request: PredictionRequest):
     try:
+        # Use the full validated payload so wildfire inference receives the
+        # same environmental feature space that was used during training.
         result = predictor.predict(
             model_name="wildfire",
-            rainfall=request.rainfall,
-            temperature=request.temperature,
-            humidity=request.humidity,
-            wind_speed=request.wind_speed,
-            ndvi=request.ndvi,
-            elevation=request.elevation,
+            **request.model_dump(),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -53,14 +50,11 @@ def predict_wildfire(request: PredictionRequest):
 @app.post("/predict/flood", response_model=PredictionResponse)
 def predict_flood(request: PredictionRequest):
     try:
+        # Flood currently uses the original six demo features and ignores
+        # wildfire-specific advanced fields inside its predictor.
         result = predictor.predict(
             model_name="flood",
-            rainfall=request.rainfall,
-            temperature=request.temperature,
-            humidity=request.humidity,
-            wind_speed=request.wind_speed,
-            ndvi=request.ndvi,
-            elevation=request.elevation,
+            **request.model_dump(),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

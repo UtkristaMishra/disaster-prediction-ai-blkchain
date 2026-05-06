@@ -35,13 +35,23 @@ class WildfirePredictor:
             print(f"Trained wildfire model not found at {model_path}")
             print("  Run: python backend/train_wildfire_model.py")
 
-    def predict(self, rainfall: float, temperature: float, humidity: float, 
-                wind_speed: float, ndvi: float, elevation: float):
+    def predict(self, rainfall: float, temperature: float, humidity: float,
+                wind_speed: float, ndvi: float, elevation: float,
+                latitude: float = 0.0, longitude: float = 0.0,
+                pressure_mean: float = 1013.25,
+                solar_radiation_mean: float = 250.0,
+                evapotranspiration_total: float = 5.0,
+                cloud_cover_mean: float = 20.0,
+                dewpoint_mean: float = 10.0,
+                wind_direction_mean: float = 180.0):
         """
         Predict wildfire risk.
         
         Args:
-            rainfall, temperature, humidity, wind_speed, ndvi, elevation: environmental features
+            rainfall, temperature, humidity, wind_speed, ndvi, elevation: core demo features
+            latitude, longitude, pressure_mean, solar_radiation_mean,
+            evapotranspiration_total, cloud_cover_mean, dewpoint_mean,
+            wind_direction_mean: advanced fields aligned to wildfire training features
         
         Returns:
             dict with risk_probability, risk_label, confidence
@@ -50,21 +60,29 @@ class WildfirePredictor:
             return self._fallback_heuristic(rainfall, temperature, humidity, wind_speed, ndvi, elevation)
         
         try:
-            # Prepare feature vector matching training features (12 features)
-            # Map inputs to features, use defaults for missing ones
+            # Prepare the exact wildfire training feature vector. UI/backend
+            # names use latitude/longitude, then map to the scaler's lat/lon.
+            fire_weather_index = self._estimate_fire_weather_index(
+                rainfall=rainfall,
+                temperature=temperature,
+                humidity=humidity,
+                wind_speed=wind_speed,
+                solar_radiation_mean=solar_radiation_mean,
+                cloud_cover_mean=cloud_cover_mean,
+            )
             features = np.array([[
                 temperature,      # temp_mean
                 humidity,         # humidity_min  
                 wind_speed,       # wind_speed_max
-                0.0,              # fire_weather_index (default)
-                0.0,              # lat (default)
-                0.0,              # lon (default)
-                1013.0,           # pressure_mean (default)
-                200.0,            # solar_radiation_mean (default)
-                5.0,              # evapotranspiration_total (default)
-                0.5,              # cloud_cover_mean (default)
-                temperature - 5,  # dewpoint_mean (approx)
-                180.0             # wind_direction_mean (default)
+                fire_weather_index,
+                latitude,         # lat
+                longitude,        # lon
+                pressure_mean,
+                solar_radiation_mean,
+                evapotranspiration_total,
+                cloud_cover_mean,
+                dewpoint_mean,
+                wind_direction_mean
             ]])
             
             # Scale using saved scaler
@@ -133,3 +151,16 @@ class WildfirePredictor:
         score += 0.08 * max(0.0, 1.0 - min(max(rainfall / 80.0, 0.0), 1.0))
         score += 0.05 * min(max((1000.0 - elevation) / 1000.0, 0.0), 1.0)
         return min(max(score, 0.0), 1.0)
+
+    def _estimate_fire_weather_index(self, rainfall: float, temperature: float,
+                                     humidity: float, wind_speed: float,
+                                     solar_radiation_mean: float,
+                                     cloud_cover_mean: float) -> float:
+        """Estimate FWI from submitted weather values when no FWI sensor exists."""
+        heat_component = max((temperature - 10.0) / 2.5, 0.0)
+        dryness_component = max((100.0 - humidity) / 10.0, 0.0)
+        wind_component = max(wind_speed / 5.0, 0.0)
+        sun_component = max(solar_radiation_mean / 120.0, 0.0)
+        cloud_penalty = max(cloud_cover_mean / 25.0, 0.0)
+        rain_penalty = max(rainfall / 10.0, 0.0)
+        return max(heat_component + dryness_component + wind_component + sun_component - cloud_penalty - rain_penalty, 0.0)
